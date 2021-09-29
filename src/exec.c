@@ -6,7 +6,7 @@
 /*   By: rcollas <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/26 18:09:22 by rcollas           #+#    #+#             */
-/*   Updated: 2021/09/28 19:31:44 by rcollas          ###   ########.fr       */
+/*   Updated: 2021/09/29 08:59:07 by rcollas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@ int	infile_cmd(t_var *var, int **pipefd, int i)
 	char	**cmd_args;
 
 	cmd_args = ft_split(var->av[i + 2], ' ');
-	printf("cmds infile = %s\n", var->cmds[i]);
 	dup2(var->file1, STDIN_FILENO);
 	dup2(pipefd[i + 1][1], STDOUT_FILENO);
 	if (close(var->file1) == -1)
@@ -27,7 +26,6 @@ int	infile_cmd(t_var *var, int **pipefd, int i)
 	}
 	if (execve(var->cmds[i], cmd_args, NULL) == FAIL)
 	{
-		printf("cmds infile = %s\n", var->cmds[i]);
 		perror("Execve failed:");
 		return (free_arg(cmd_args));
 	}
@@ -56,7 +54,6 @@ int	outfile_cmd(t_var *var, int **pipefd, int i)
 	char	**cmd_args;
 
 	cmd_args = ft_split(var->av[i + 2], ' ');
-	printf("cmds outfile = %s\n", var->cmds[i]);
 	dup2(var->file2, STDOUT_FILENO);
 	dup2(pipefd[i][0], STDIN_FILENO);
 	if (close(var->file2) == -1)
@@ -66,7 +63,6 @@ int	outfile_cmd(t_var *var, int **pipefd, int i)
 	}
 	if (execve(var->cmds[i], cmd_args, NULL) == FAIL)
 	{
-		printf("cmds outfile = %s\n", var->cmds[i]);
 		perror("Execve failed:");
 		return (free_arg(cmd_args));
 	}
@@ -76,9 +72,6 @@ int	outfile_cmd(t_var *var, int **pipefd, int i)
 
 int	proceed_pipes(t_var *var, int **pipefd, int i)
 {
-	char	**cmd_args;
-
-	cmd_args = ft_split(var->av[i + 2], ' ');
 	if (i == 0)
 		infile_cmd(var, pipefd, i);
 	else if (i == var->size - 2)
@@ -145,6 +138,7 @@ int	exec(t_var *var, int **pipefd, pid_t *pids)
 		perror("Close failed");
 	if (close(pipefd[var->size][1] == -1))
 		perror("Close failed");
+	i = -1;
 	while (++i < var->size - 1)
 		waitpid(pids[i], &status, 0);
 	return (1);
